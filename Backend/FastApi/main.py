@@ -10,4 +10,7 @@ async def root():
 
 @app.get("/url")
 async def url():
-    return  { "url:": "https://github.com/Josejmz29/SoccerStatus/tree/Backend" }
+    return  { "url:": "http://127.0.0.1:8000" }
+
+#documentacion con swagger: http://127.0.0.1:8000/docs
+# main:app --reload
