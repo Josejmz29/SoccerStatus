@@ -1,7 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter, HTTPException
 from pydantic import BaseModel
 
-app = FastAPI()
+
+
+router = APIRouter()
 
 class User(BaseModel):
     id: int
@@ -13,13 +15,17 @@ users_list = [User(id=1,name= "Jose", surname="Jimenez", age=20),
               User(id=2,name= "Joseph", surname="Jimenez", age=50),
               User(id=3,name= "Josh", surname="Jimenez", age=23)]
 
+@router.get("/users/")
+async def usersclass():
+    return users_list
+
 #path
-@app.get("/users/{id}")
+@router.get("/user/{id}")
 async def usersclass(id: int):
     return search_user(id)
 
 #query
-@app.get("/users/")
+@router.get("/users/")
 async def users(id: int):
     return search_user(id)
 
@@ -30,17 +36,17 @@ def search_user (id: int):
     except:
         return {"Error" : "no se ha encontrado el usuario"}
     
-@app.post("/user/")
+@router.post("/user/",response_model=User, status_code=201)
 async def user(user: User):
     if type(search_user(user.id)) == User:
-        return {"error" : "El usuario ya existe"}
+        raise  HTTPException(status_code=404, detail="El usuario ya existe")
     
     users_list.append(user)
     return user
 
 found = False
 
-@app.put("/user/")
+@router.put("/user/")
 async def user(user: User):
     for index, saved_user in enumerate(users_list):
         if saved_user.id== user.id:
@@ -48,3 +54,12 @@ async def user(user: User):
             found = True
     if not found:
         return {"error" : "No se ha actualizado el usuario"}
+
+@router.delete("/user/{id}")
+async def user(id: int):
+    for index, saved_user in enumerate(users_list):
+        if saved_user.id== id:
+            del users_list[index]
+            found = True
+    if not found:
+            return {"error" : "No se ha eliminado el usuario"}
